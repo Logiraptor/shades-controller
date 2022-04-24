@@ -1,7 +1,7 @@
 #!/bin/bash
 
-sudo service dbus start
-sudo service bluetooth start
+service dbus start
+service bluetooth start
 
 # wait for startup of services
 msg="Waiting for services to start..."
@@ -15,7 +15,7 @@ done
 echo -e "\r$msg done! (in $time s)"
 
 # reset bluetooth adapter by restarting it
-sudo hciconfig hci0 down
-sudo hciconfig hci0 up
+hciconfig hci0 down
+hciconfig hci0 up
 
-./shades-controller
+/shades-controller
