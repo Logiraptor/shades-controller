@@ -16,4 +16,8 @@ while [[ "$(pidof start-stop-daemon)" != "" ]]; do
 done
 echo -e "\r$msg done! (in $time s)"
 
+# reset bluetooth adapter by restarting it
+hciconfig hci0 down
+hciconfig hci0 up
+
 /shades-controller

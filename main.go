@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"tinygo.org/x/bluetooth"
 )
@@ -37,18 +38,19 @@ const (
 
 func main() {
 	server := NewServer(adapter)
+
+	err := server.Start()
+	if err != nil {
+		fmt.Println("Failed to start server:", err)
+		os.Exit(1)
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/send", server.SendCommandEndpoint)
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
-	}
-
-	err := adapter.Enable()
-	if err != nil {
-		fmt.Println("Failed to enable adapter:", err)
-		os.Exit(1)
 	}
 
 	fmt.Println("Listening on port", port)
@@ -66,6 +68,26 @@ type Server struct {
 func NewServer(adapter *bluetooth.Adapter) *Server {
 	s := &Server{adapter: adapter}
 	return s
+}
+
+func (s *Server) Start() error {
+	retries := 10
+	enabled := false
+	for i := 0; i < retries; i++ {
+		err := s.adapter.Enable()
+		if err != nil {
+			fmt.Printf("Attempt %d/%d failed to enable adapter: %v\n", i, retries, err)
+			time.Sleep(time.Second)
+			continue
+		} else {
+			enabled = true
+			break
+		}
+	}
+	if !enabled {
+		return fmt.Errorf("failed to enable adapter after %d attempts", retries)
+	}
+	return nil
 }
 
 func (s *Server) SendCommandEndpoint(w http.ResponseWriter, req *http.Request) {
