@@ -1,6 +1,6 @@
-FROM golang:alpine
+FROM golang:buster
 
-RUN apk add \
+RUN apt-get add -y \
     bluez \
     dbus
 
