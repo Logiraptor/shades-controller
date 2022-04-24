@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"tinygo.org/x/bluetooth"
@@ -91,11 +92,16 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) SendCommandEndpoint(w http.ResponseWriter, req *http.Request) {
-	group, err := strconv.ParseUint(req.FormValue("group"), 10, 8)
-	if err != nil {
-		fmt.Println("Failed to parse group:", err)
-		http.Error(w, "Failed to parse group", http.StatusBadRequest)
-		return
+	groups := []byte{}
+	groupsStrings := strings.Split(req.FormValue("groups"), ",")
+	for _, groupString := range groupsStrings {
+		group, err := strconv.Atoi(groupString)
+		if err != nil {
+			fmt.Println("Failed to parse group:", err)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		groups = append(groups, byte(group))
 	}
 
 	command, err := strconv.ParseUint(req.FormValue("command"), 10, 8)
@@ -105,7 +111,7 @@ func (s *Server) SendCommandEndpoint(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = s.SendCommand(req.Context(), byte(group), Command(command))
+	err = s.SendCommand(req.Context(), groups, Command(command))
 	if err != nil {
 		fmt.Println("Failed to send command:", err)
 		http.Error(w, "Failed to send command", http.StatusInternalServerError)
@@ -114,7 +120,7 @@ func (s *Server) SendCommandEndpoint(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintln(w, "Sent command")
 }
 
-func (s *Server) SendCommand(ctx context.Context, group byte, command Command) error {
+func (s *Server) SendCommand(ctx context.Context, groups []byte, command Command) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	go func() {
@@ -131,7 +137,7 @@ func (s *Server) SendCommand(ctx context.Context, group byte, command Command) e
 		}
 
 		if device.LocalName() == targetDevice {
-			err := s.sendCommandToAddress(device.Address, group, command)
+			err := s.sendCommandToAddress(device.Address, groups, command)
 			if err != nil {
 				fmt.Println("failed to send command:", err)
 			} else {
@@ -142,7 +148,7 @@ func (s *Server) SendCommand(ctx context.Context, group byte, command Command) e
 	})
 }
 
-func (s *Server) sendCommandToAddress(addr bluetooth.Addresser, group byte, command Command) error {
+func (s *Server) sendCommandToAddress(addr bluetooth.Addresser, groups []byte, command Command) error {
 	dev, err := s.adapter.Connect(addr, bluetooth.ConnectionParams{})
 	if err != nil {
 		return fmt.Errorf("failed to connect to device: %w", err)
@@ -155,10 +161,12 @@ func (s *Server) sendCommandToAddress(addr bluetooth.Addresser, group byte, comm
 	if err != nil {
 		return fmt.Errorf("failed to unlock device: %w", err)
 	}
-	err = s.writeToCharacteristic(dev, raiseLowerService, raiseLowerCharacteristic,
-		[]byte{0xF1, byte(command), group})
-	if err != nil {
-		return fmt.Errorf("failed to send command: %w", err)
+	for _, group := range groups {
+		err = s.writeToCharacteristic(dev, raiseLowerService, raiseLowerCharacteristic,
+			[]byte{0xF1, byte(command), group})
+		if err != nil {
+			return fmt.Errorf("failed to send command: %w", err)
+		}
 	}
 
 	fmt.Println("Sent command to device:", addr.String())
