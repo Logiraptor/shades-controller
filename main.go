@@ -71,13 +71,13 @@ func NewServer(adapter *bluetooth.Adapter) *Server {
 }
 
 func (s *Server) Start() error {
-	retries := 10
+	retries := 100
 	enabled := false
 	for i := 0; i < retries; i++ {
 		err := s.adapter.Enable()
 		if err != nil {
 			fmt.Printf("Attempt %d/%d failed to enable adapter: %v\n", i, retries, err)
-			time.Sleep(time.Second)
+			time.Sleep(time.Second * 2)
 			continue
 		} else {
 			enabled = true
