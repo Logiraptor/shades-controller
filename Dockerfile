@@ -1,6 +1,6 @@
 FROM golang:buster
 
-RUN apt-get add -y \
+RUN apt-get update && apt-get install -y \
     bluez \
     dbus
 
