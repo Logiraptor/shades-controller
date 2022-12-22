@@ -1,3 +1,4 @@
+//go:build softdevice
 // +build softdevice
 
 package bluetooth
@@ -9,6 +10,14 @@ import (
 	"runtime/volatile"
 	"unsafe"
 )
+
+// #include "ble.h"
+// #ifdef NRF51
+//   #include "nrf_soc.h"
+// #else
+//   #include "nrf_nvic.h"
+// #endif
+import "C"
 
 var (
 	ErrNotDefaultAdapter = errors.New("bluetooth: not the default adapter")

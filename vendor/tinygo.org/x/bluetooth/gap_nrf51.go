@@ -1,3 +1,4 @@
+//go:build softdevice && s110v8
 // +build softdevice,s110v8
 
 package bluetooth
@@ -60,6 +61,13 @@ func (a *Advertisement) Configure(options AdvertisementOptions) error {
 func (a *Advertisement) Start() error {
 	a.isAdvertising.Set(1)
 	errCode := a.start()
+	return makeError(errCode)
+}
+
+// Stop advertisement.
+func (a *Advertisement) Stop() error {
+	a.isAdvertising.Set(0)
+	errCode := C.sd_ble_gap_adv_stop()
 	return makeError(errCode)
 }
 

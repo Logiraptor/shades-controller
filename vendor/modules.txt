@@ -1,6 +1,7 @@
 # github.com/JuulLabs-OSS/cbgo v0.0.2
 ## explicit; go 1.14
-github.com/JuulLabs-OSS/cbgo
+# github.com/davecgh/go-spew v1.1.1
+## explicit
 # github.com/fatih/structs v1.1.0
 ## explicit
 github.com/fatih/structs
@@ -12,7 +13,7 @@ github.com/go-ole/go-ole
 github.com/godbus/dbus/v5
 github.com/godbus/dbus/v5/introspect
 github.com/godbus/dbus/v5/prop
-# github.com/muka/go-bluetooth v0.0.0-20220323170840-382ca1d29f29
+# github.com/muka/go-bluetooth v0.0.0-20221213043340-85dc80edc4e1
 ## explicit; go 1.14
 github.com/muka/go-bluetooth/api
 github.com/muka/go-bluetooth/api/service
@@ -25,19 +26,34 @@ github.com/muka/go-bluetooth/bluez/profile/device
 github.com/muka/go-bluetooth/bluez/profile/gatt
 github.com/muka/go-bluetooth/props
 github.com/muka/go-bluetooth/util
-# github.com/sirupsen/logrus v1.8.1
+# github.com/pmezard/go-difflib v1.0.0
+## explicit
+# github.com/saltosystems/winrt-go v0.0.0-20220826130236-ddc8202da421
+## explicit; go 1.18
+github.com/saltosystems/winrt-go
+github.com/saltosystems/winrt-go/windows/devices/bluetooth
+github.com/saltosystems/winrt-go/windows/devices/bluetooth/advertisement
+github.com/saltosystems/winrt-go/windows/devices/bluetooth/genericattributeprofile
+github.com/saltosystems/winrt-go/windows/foundation
+github.com/saltosystems/winrt-go/windows/foundation/collections
+github.com/saltosystems/winrt-go/windows/storage/streams
+# github.com/sirupsen/logrus v1.9.0
 ## explicit; go 1.13
 github.com/sirupsen/logrus
-# github.com/stretchr/testify v1.7.0
+# github.com/stretchr/objx v0.5.0
+## explicit; go 1.12
+# github.com/stretchr/testify v1.8.1
 ## explicit; go 1.13
-# golang.org/x/sys v0.0.0-20220422013727-9388b58f7150
+# github.com/tinygo-org/cbgo v0.0.4
+## explicit; go 1.14
+github.com/tinygo-org/cbgo
+# golang.org/x/sys v0.3.0
 ## explicit; go 1.17
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
 golang.org/x/sys/windows
-# gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+# gopkg.in/yaml.v3 v3.0.1
 ## explicit
-# tinygo.org/x/bluetooth v0.4.0
+# tinygo.org/x/bluetooth v0.6.0
 ## explicit; go 1.15
 tinygo.org/x/bluetooth
-tinygo.org/x/bluetooth/winbt

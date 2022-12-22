@@ -104,9 +104,9 @@ type LEAdvertisement1Properties struct {
 	DiscoverableTimeout uint16
 
 	/*
-		Duration Duration of the advertisement in seconds. If there are
-				other applications advertising no duration is set the
-				default is 2 seconds.
+		Duration Rotation duration of the advertisement in seconds. If
+				there are other applications advertising no duration is
+				set the default is 2 seconds.
 	*/
 	Duration uint16
 
@@ -230,17 +230,17 @@ func (a *LEAdvertisement1) GetAppearance() (uint16, error) {
 }
 
 // SetData set Data value
-func (a *LEAdvertisement1) SetData(v map[string]interface{}) error {
+func (a *LEAdvertisement1) SetData(v map[byte]interface{}) error {
 	return a.SetProperty("Data", v)
 }
 
 // GetData get Data value
-func (a *LEAdvertisement1) GetData() (map[string]interface{}, error) {
+func (a *LEAdvertisement1) GetData() (map[byte]interface{}, error) {
 	v, err := a.GetProperty("Data")
 	if err != nil {
-		return map[string]interface{}{}, err
+		return map[byte]interface{}{}, err
 	}
-	return v.Value().(map[string]interface{}), nil
+	return v.Value().(map[byte]interface{}), nil
 }
 
 // SetDiscoverable set Discoverable value
@@ -314,17 +314,17 @@ func (a *LEAdvertisement1) GetLocalName() (string, error) {
 }
 
 // SetManufacturerData set ManufacturerData value
-func (a *LEAdvertisement1) SetManufacturerData(v map[string]interface{}) error {
+func (a *LEAdvertisement1) SetManufacturerData(v map[uint16]interface{}) error {
 	return a.SetProperty("ManufacturerData", v)
 }
 
 // GetManufacturerData get ManufacturerData value
-func (a *LEAdvertisement1) GetManufacturerData() (map[string]interface{}, error) {
+func (a *LEAdvertisement1) GetManufacturerData() (map[uint16]interface{}, error) {
 	v, err := a.GetProperty("ManufacturerData")
 	if err != nil {
-		return map[string]interface{}{}, err
+		return map[uint16]interface{}{}, err
 	}
-	return v.Value().(map[string]interface{}), nil
+	return v.Value().(map[uint16]interface{}), nil
 }
 
 // SetMaxInterval set MaxInterval value

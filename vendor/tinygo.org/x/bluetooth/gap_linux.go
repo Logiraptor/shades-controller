@@ -1,8 +1,10 @@
+//go:build !baremetal
 // +build !baremetal
 
 package bluetooth
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/godbus/dbus/v5"
@@ -10,6 +12,8 @@ import (
 	"github.com/muka/go-bluetooth/bluez/profile/advertising"
 	"github.com/muka/go-bluetooth/bluez/profile/device"
 )
+
+var errAdvertisementNotStarted = errors.New("bluetooth: stop advertisement that was not started")
 
 // Address contains a Bluetooth MAC address.
 type Address struct {
@@ -21,6 +25,7 @@ type Advertisement struct {
 	adapter       *Adapter
 	advertisement *api.Advertisement
 	properties    *advertising.LEAdvertisement1Properties
+	cancel        func()
 }
 
 // DefaultAdvertisement returns the default advertisement instance but does not
@@ -59,10 +64,20 @@ func (a *Advertisement) Start() error {
 	if a.advertisement != nil {
 		panic("todo: start advertisement a second time")
 	}
-	_, err := api.ExposeAdvertisement(a.adapter.id, a.properties, uint32(a.properties.Timeout))
+	cancel, err := api.ExposeAdvertisement(a.adapter.id, a.properties, uint32(a.properties.Timeout))
 	if err != nil {
 		return err
 	}
+	a.cancel = cancel
+	return nil
+}
+
+// Stop advertisement. May only be called after it has been started.
+func (a *Advertisement) Stop() error {
+	if a.cancel == nil {
+		return errAdvertisementNotStarted
+	}
+	a.cancel()
 	return nil
 }
 
@@ -182,6 +197,13 @@ func (a *Adapter) Scan(callback func(*Adapter, ScanResult)) error {
 						props.Name = val.Value().(string)
 					case "UUIDs":
 						props.UUIDs = val.Value().([]string)
+					case "ManufacturerData":
+						// work around for https://github.com/muka/go-bluetooth/issues/163
+						mData := make(map[uint16]interface{})
+						for k, v := range val.Value().(map[uint16]dbus.Variant) {
+							mData[k] = v.Value().(interface{})
+						}
+						props.ManufacturerData = mData
 					}
 				}
 				callback(a, makeScanResult(props))
@@ -222,13 +244,25 @@ func makeScanResult(props *device.Device1Properties) ScanResult {
 	a := Address{MACAddress{MAC: addr}}
 	a.SetRandom(props.AddressType == "random")
 
+	mData := make(map[uint16][]byte)
+	for k, v := range props.ManufacturerData {
+		// can be either variant or just byte value
+		switch val := v.(type) {
+		case dbus.Variant:
+			mData[k] = val.Value().([]byte)
+		case []byte:
+			mData[k] = val
+		}
+	}
+
 	return ScanResult{
 		RSSI:    props.RSSI,
 		Address: a,
 		AdvertisementPayload: &advertisementFields{
 			AdvertisementFields{
-				LocalName:    props.Name,
-				ServiceUUIDs: serviceUUIDs,
+				LocalName:        props.Name,
+				ServiceUUIDs:     serviceUUIDs,
+				ManufacturerData: mData,
 			},
 		},
 	}

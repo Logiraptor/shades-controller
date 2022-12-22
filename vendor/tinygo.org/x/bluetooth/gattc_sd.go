@@ -1,3 +1,4 @@
+//go:build (softdevice && s132v6) || (softdevice && s140v6) || (softdevice && s140v7)
 // +build softdevice,s132v6 softdevice,s140v6 softdevice,s140v7
 
 package bluetooth
@@ -134,7 +135,7 @@ func (d *Device) DiscoverServices(uuids []UUID) ([]DeviceService, error) {
 
 		// Store the discovered service.
 		svc := DeviceService{
-			uuid:             suuid,
+			uuid:             shortUUID(suuid),
 			connectionHandle: d.connectionHandle,
 			startHandle:      startHandle,
 			endHandle:        endHandle,
@@ -276,7 +277,7 @@ func (s *DeviceService) DiscoverCharacteristics(uuids []UUID) ([]DeviceCharacter
 			permissions |= CharacteristicIndicatePermission
 		}
 
-		dc := DeviceCharacteristic{uuid: discoveringCharacteristic.uuid}
+		dc := DeviceCharacteristic{uuid: shortUUID(discoveringCharacteristic.uuid)}
 		dc.permissions = permissions
 		dc.valueHandle = foundCharacteristicHandle
 

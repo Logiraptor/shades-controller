@@ -1,3 +1,4 @@
+//go:build softdevice
 // +build softdevice
 
 package bluetooth
@@ -8,6 +9,7 @@ package bluetooth
 #define SVCALL_AS_NORMAL_FUNCTION
 
 #include "ble_gap.h"
+#include "ble_gatts.h"
 */
 import "C"
 
